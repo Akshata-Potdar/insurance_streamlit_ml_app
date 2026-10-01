@@ -2,77 +2,78 @@ import streamlit as st
 import pandas as pd
 import pickle
 
-# Load trained model
-with open("model.pkl", "rb") as file:
+
+with open("model/insurance_model.pkl", "rb") as file:
     model = pickle.load(file)
 
 st.set_page_config(
-    page_title="Titanic Survival Prediction",
-    page_icon="."
+    page_title="Insurance Cost Prediction",
+    page_icon="💰"
 )
 
-st.title("Titanic Survival Prediction")
-st.write("Enter passenger details to predict survival.")
+st.title("💰 Insurance Cost Prediction")
 
-# User inputs
-pclass = st.selectbox(
-    "Passenger Class",
-    [1, 2, 3]
+st.write(
+    "Enter customer details to predict medical insurance charges."
 )
 
-sex = st.selectbox(
-    "Gender",
-    ["male", "female"]
-)
 
 age = st.number_input(
     "Age",
-    min_value=0.0,
-    max_value=100.0,
+    min_value=1,
+    max_value=100,
+    value=30
+)
+
+sex = st.selectbox(
+    "Sex",
+    ["male", "female"]
+)
+
+bmi = st.number_input(
+    "BMI",
+    min_value=10.0,
+    max_value=60.0,
     value=25.0
 )
 
-sibsp = st.number_input(
-    "Number of Siblings/Spouses Aboard",
+children = st.number_input(
+    "Number of Children",
     min_value=0,
     max_value=10,
     value=0
 )
 
-parch = st.number_input(
-    "Number of Parents/Children Aboard",
-    min_value=0,
-    max_value=10,
-    value=0
+smoker = st.selectbox(
+    "Smoker",
+    ["yes", "no"]
 )
 
-fare = st.number_input(
-    "Ticket Fare",
-    min_value=0.0,
-    value=32.0
+region = st.selectbox(
+    "Region",
+    [
+        "southwest",
+        "southeast",
+        "northwest",
+        "northeast"
+    ]
 )
 
-embarked = st.selectbox(
-    "Port of Embarkation",
-    ["S", "C", "Q"]
-)
+if st.button("Predict Insurance Cost"):
+    input_data = pd.DataFrame({
+        "age": [age],
+        "sex": [sex],
+        "bmi": [bmi],
+        "children": [children],
+        "smoker": [smoker],
+        "region": [region]
+    })
 
-# Predict survival
-if st.button("Predict Survival"):
+    prediction = model.predict(input_data)
 
-    input_data = pd.DataFrame([{
-        "Pclass": pclass,
-        "Sex": sex,
-        "Age": age,
-        "SibSp": sibsp,
-        "Parch": parch,
-        "Fare": fare,
-        "Embarked": embarked
-    }])
+    st.success(
+        f"Predicted Insurance Charges: ${prediction[0]:,.2f}"
+    )
 
-    prediction = model.predict(input_data)[0]
 
-    if prediction == 1:
-        st.success("Prediction: Passenger Survived")
-    else:
-        st.error("Prediction: Passenger Did Not Survive")
+
